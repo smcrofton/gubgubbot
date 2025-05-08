@@ -11,40 +11,22 @@ const Users = require('./models/Users.js')(sequelize, Sequelize.DataTypes);
 const Messages = require('./models/Messages.js')(sequelize, Sequelize.DataTypes);
 const MessageScores = require('./models/MessageScores.js')(sequelize, Sequelize.DataTypes);
 
-// Reflect.defineProperty(Users.prototype, 'addUser', {
-// 	value: async user => {
-// 		const existingUser = await Users.findOne({
-// 			where: { user_id: user.user_id}
-// 		});
+Users.hasMany(Messages, {
+	foreignKey: 'author_id',
+});
+Users.hasMany(MessageScores, {
+	foreignKey: 'user_id',
+});
 
-// 		if (!existingUser) {
-// 			return Users.create({user_id: user.user_id, username: user.username});
-// 		}
-// 	},
-// });
+Messages.belongsTo(Users, {
+	foreignKey: 'author_id',
+});
+Messages.hasMany(MessageScores);
 
-// Reflect.defineProperty(Messages.prototype, 'addMsg', {
-// 	value: async msg => {
-// 		const existingMsg = await Messages.findOne({
-// 			where: { msg_id: msg.msg_id}
-// 		});
+MessageScores.belongsTo(Messages);
 
-// 		if (!msg) {
-// 			return Messages.create({msg_id: msg.msg_id, author_id: msg.author_id, content: msg.content});
-// 		}
-// 	},
-// });
+MessageScores.belongsTo(Users, {
+	foreignKey: 'user_id',
+});
 
-// Reflect.defineProperty(MessageScores.prototype, 'addMsgScore', {
-// 	value: async msgScore => {
-// 		const msgScore = await MessageScores.findOne({
-// 			where: { msg_id: this.msg_id, user_id: this.user_id}
-// 		});
-
-// 		if (!msgScore) {
-// 			return Messages.create({msg_id: this.msg_id, user_id: this.user_id, msgScore: this.msgScore});
-// 		}
-// 	},
-// });
-
-module.exports = { Users, Messages, MessageScores};
+module.exports = { Users, Messages, MessageScores, sequelize};
