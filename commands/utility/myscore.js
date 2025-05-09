@@ -10,6 +10,7 @@ module.exports = {
 	async execute(interaction) {
 		// interaction.guild is the object representing the Guild in which the command was run
 		try{
+			//Grab the total score, positive scores, and negative scores for the user who ran the command
 			const currScores = await MessageScores.findAll({
 				attributes: ['author_id', [sequelize.fn("SUM", sequelize.col("score")), "total_score"]],
 				where: { author_id: interaction.user.id },
@@ -28,12 +29,16 @@ module.exports = {
 				group: ['author_id']
 			});
 
+			//check if any of the queries came back undefined, and if so, gives error message
 			const scoreboardEmbed = new EmbedBuilder()
 				.setTitle(interaction.user.username + " +2's")
-				.setDescription("Current Score: " + currScores[0].dataValues.total_score)
+				.setDescription(currScores[0] == undefined ? "You haven't point farmed yet slime." : 
+					"Current Score: " + `${currScores[0].dataValues.total_score}`)
 				.addFields(
-					{ name: 'Total +2s score', value: `${posScores[0].dataValues.total_score}`, inline: true },
-					{ name: 'Total -2s score', value: `${negScores[0].dataValues.total_score}`, inline: true }
+					posScores[0] == undefined ? { name: '\u200B', value: '\u200B' } :
+						{ name: 'Total +2s score', value: `${posScores[0].dataValues.total_score}`, inline: true },
+					negScores[0] == undefined ? { name: '\u200B', value: '\u200B' } :
+						{ name: 'Total -2s score', value: `${negScores[0].dataValues.total_score}`, inline: true }
 				)
 				.setTimestamp();
 			
